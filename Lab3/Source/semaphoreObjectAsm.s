@@ -1,5 +1,5 @@
             INCLUDE rtosAsm.h
-            
+            	PRESERVE8 {true}
             IMPORT  runningThreadObjectPtr
             IMPORT  listObjectInsert
             IMPORT  listObjectDelete
