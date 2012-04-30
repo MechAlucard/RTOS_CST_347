@@ -865,8 +865,8 @@ MEMMAP          EQU     0xE01FC040          ; Memory Mapping Control
 
 ; Enter the C code -------------------------------------------------------------
 
-                IMPORT  __main
-                LDR     R0, =__main
+                IMPORT  main
+                LDR     R0, =main
                 BX      R0
 
 

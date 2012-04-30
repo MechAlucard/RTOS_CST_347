@@ -1,19 +1,21 @@
 #include "rtos.h"
 #include "assert.h"
 
+
 #define MAX_THREADS_IN_THE_SYSTEM   100
 #define MAX_LIST_NODES              2*MAX_THREADS_IN_THE_SYSTEM
 listNode_t listNodes[MAX_LIST_NODES];
 uint32     listNodesAvailableCount;
 listNode_t *listNodesAvailable[MAX_LIST_NODES];
 
+
 listObject_t readyList;
 listObject_t timerList;
 int64        time;
+const uint32 THREAD_TIME = 10;
 threadObject_t *runningThreadObjectPtr;
 threadObject_t idleThread;
 int32          idleStack[5];
-
 extern void rtosInitAsm(void);
 extern void interrupt_disable(void);
 extern void interrupt_restore(void);
@@ -114,6 +116,7 @@ void listObjectInsert(listObject_t *listNodePtr,
     listNodePtr->auxInfo++;
 
     //parse the list till we reach the correct place for the newThreadObject.
+	if(newThreadObject->time_quantum == THREAD_TIME)
     while(listNodePtr->nextListNode != 0 && 
         listNodePtr->nextListNode->auxInfo <= newThreadObjectPriority)
     {
@@ -291,14 +294,15 @@ return 0. Note that lower the priority number higher the thread priority.
 int is_thread_switch_needed(void)
 {
     //check if the runningThreadObject has less priority than 
-    //highest priority thread in the ready list. If so return 1
+    //highest priority thread in the ready list or time quantum has run out. If so return 1
     //else return 0.
     
     int returnValue = 0;
     
     if(readyList.auxInfo > 0)   //if the number of threads in the ready list > 0
     {
-        if((readyList.nextListNode)->auxInfo < runningThreadObjectPtr->priority)
+        if((readyList.nextListNode)->auxInfo < runningThreadObjectPtr->priority
+					|| runningThreadObjectPtr->time_quantum <= 0)
         {
             returnValue = 1;
         }
@@ -430,6 +434,14 @@ void timerTick(void)
     listObject_t *freedListNodePtr;
     
     time++;
+		//decrease time quantum of runnning thread if greater than 0
+		if(runningThreadObjectPtr->time_quantum > 0)
+			runningThreadObjectPtr->time_quantum--;
+// 		else//reset quantum and call new thread
+// 		{
+// 			runningThreadObjectPtr->time_quantum = THREAD_TIME;
+// 			irq_interrupt_handler();
+// 		}
     //decrease the waiting time by 1.
     if(timerList.auxInfo > 0)
     {

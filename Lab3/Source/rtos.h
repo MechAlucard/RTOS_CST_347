@@ -39,6 +39,8 @@ typedef struct _threadObject_
     struct _listObject_ *waitListTimer;
     
     char   *threadObjectName;
+	
+		int time_quantum;
 
 }threadObject_t;
 
@@ -91,7 +93,7 @@ int32 listObjectCount(listObject_t *listObjectPtr);
 
 void threadObjectCreate(threadObject_t *threadObjectPtr, 
                         void *functionPtr, 
-                        int32 arg1, 
+                        int32 time_quantum,//int32 arg1, 
                         int32 arg2, 
                         int32 arg3, 
                         int32 arg4, 

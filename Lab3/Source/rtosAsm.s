@@ -1,7 +1,5 @@
-
-
-			INCLUDE rtosAsm.h
-            	PRESERVE8 {true}
+            INCLUDE rtosAsm.h
+            PRESERVE8 {true}
             IMPORT  runningThreadObjectPtr
             IMPORT  listObjectInsert
             IMPORT  listObjectDelete
@@ -12,7 +10,9 @@
 
             IMPORT  insertIntoTimerList
             IMPORT  deleteFromTimerList
-            
+
+			IMPORT	THREAD_TIME
+			
             EXPORT  scheduler
             EXPORT  rtosInitAsm
             EXPORT  block
@@ -216,7 +216,7 @@ sleep
             SET_STATE_OF_PC_IN_CPSR R14, R4 ;This macro keep the state of 
                                             ;PC in R4
             
-            STR     R4, [R1, #threadObject_t_cpsr_offset] 
+            STR     R4, [R0, #threadObject_t_cpsr_offset] 
                                             ;save the current status of the 
                                             ;thread.
             
@@ -371,7 +371,10 @@ irq_interrupt_handler
         ASSERT  threadObject_t_R_offset = 0
         
         STR     R1, [R0, #threadObject_t_cpsr_offset]   
-                                ;save interrupted thread CPSR.
+        LDR     R2,=THREAD_TIME
+		LDR		R2,[R2]
+		STR     R2,[R0, #threadObject_t_timeQuantum_offset]		
+								;renew the time quantum
         
         LDMFD   $R13_irq!, {R2, R3}             
                                 ;get interrupted thread R0, R1 into R2, R3 
@@ -517,6 +520,7 @@ stackPointer_offset EQU     8
 priority_offset     EQU     12
 cpsr_offset         EQU     16
 threadObjectName_offset EQU 20
+timeQuantum_offset  EQU     28
 
             ASSERT  threadObject_t_R_offset = 0
             
@@ -570,7 +574,8 @@ threadObjectName_offset EQU 20
             STR     R1, [$threadObjectPtrR0, \
                             #threadObject_t_threadObjectName_offset]    
                                         ;save name pointer.
-            
+            STR     R2,[$threadObjectPtrR0, #threadObject_t_timeQuantum_offset]
+										;save time quantum
             MOV     R1, #0      ;R1=0
             
             STR     R1, [$threadObjectPtrR0, #threadObject_t_waitListTimer_offset]  
