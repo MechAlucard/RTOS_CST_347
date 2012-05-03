@@ -8,12 +8,12 @@
 #define MAX_COUNT 0xFF
 extern int THREAD_TIME;
 threadObject_t thread1, thread2;
-void Count_up(void);
-void Count_out(void);
+void Count_up(int32 * count);
+void Count_out(int32 * count);
 int32 stack1[1000], stack2[1000];
-int count = 0;
 int main(void)
 {
+		int count = 0;
     rtosInit();
     init_serial();
 		lcd_init();
@@ -21,7 +21,7 @@ int main(void)
 		timer_init();
     threadObjectCreate(&thread1,
                         (void *)Count_up,
-                        THREAD_TIME,
+                        (int32)&count,
                         0,
                         0,
                         0,
@@ -32,7 +32,7 @@ int main(void)
                         
     threadObjectCreate(&thread2,
                         (void *)Count_out,
-                        THREAD_TIME,
+                        (int32)&count,
                         0,
                         0,
                         0,
@@ -48,21 +48,20 @@ int main(void)
 }                       
                         
                         
-void Count_up(void)
+void Count_up(int32 * count)
 {
-	count = 0;
    for(;;)
 	{
-		LED_Out(count);
-		if(count++ > MAX_COUNT)
-			count = 0;
+		LED_Out(*count);
+		if((*count)++ > MAX_COUNT)
+			*count = 0;
 	}
 }
                     
-void Count_out(void)
+void Count_out(int32 * count)
 {
 	for(;;)
 	{
-		printf("%d\n",count);
+		printf("%d\n",*count);
 	}
 }

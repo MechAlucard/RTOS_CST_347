@@ -10,7 +10,7 @@ IRQ_MODE                EQU     2_10010
 SVC_MODE                EQU     2_10011
 ABT_MODE                EQU     2_10111
 UND_MODE                EQU     2_11011
-
+THREAD_TIME							EQU			10
 
 
 

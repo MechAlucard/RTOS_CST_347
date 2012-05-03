@@ -11,7 +11,7 @@
             IMPORT  insertIntoTimerList
             IMPORT  deleteFromTimerList
 
-			IMPORT	THREAD_TIME
+			;IMPORT	THREAD_TIME
 			
             EXPORT  scheduler
             EXPORT  rtosInitAsm
@@ -371,8 +371,8 @@ irq_interrupt_handler
         ASSERT  threadObject_t_R_offset = 0
         
         STR     R1, [R0, #threadObject_t_cpsr_offset]   
-        LDR     R2,=THREAD_TIME
-		LDR		R2,[R2]
+        MOV     R2,#THREAD_TIME
+		;LDR		R2,[R2]
 		STR     R2,[R0, #threadObject_t_timeQuantum_offset]		
 								;renew the time quantum
         
@@ -574,7 +574,8 @@ timeQuantum_offset  EQU     28
             STR     R1, [$threadObjectPtrR0, \
                             #threadObject_t_threadObjectName_offset]    
                                         ;save name pointer.
-            STR     R2,[$threadObjectPtrR0, #threadObject_t_timeQuantum_offset]
+			MOV		R1,#THREAD_TIME							
+            STR     R1,[$threadObjectPtrR0, #threadObject_t_timeQuantum_offset]
 										;save time quantum
             MOV     R1, #0      ;R1=0
             
