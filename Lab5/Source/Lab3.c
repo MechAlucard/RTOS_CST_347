@@ -3,25 +3,20 @@
 #include "rtos.h"
 #include "LCD/LCD.h"
 #include "Serial/Serial.h"
-#include "LED/led.h"
-#include "Flag/flag.h"
-#define MAX_COUNT 0xFF
-extern int THREAD_TIME;
-threadObject_t thread1, thread2;
-void Count_up(int32 * count);
-void Count_out(int32 * count);
+
+threadObject_t thread1, thread2, thread3;
+void Count(void);
+void Count_out(void);
 int32 stack1[1000], stack2[1000];
+
 int main(void)
 {
-		int count = 0;
+	int count = 0;
     rtosInit();
     init_serial();
-		lcd_init();
-		LED_Init();
-		flag_init();
     threadObjectCreate(&thread1,
-                        (void *)Count_up,
-                        (int32)&count,
+                        (void *)Count,
+                        0,
                         0,
                         0,
                         0,
@@ -32,7 +27,7 @@ int main(void)
                         
     threadObjectCreate(&thread2,
                         (void *)Count_out,
-                        (int32)&count,
+                        0,
                         0,
                         0,
                         0,
@@ -41,29 +36,29 @@ int main(void)
                         INITIAL_CPSR_ARM_FUNCTION,
                         "thread2");
                         
-                        
+		lcd_init();
     lcd_print("Works Yo!");
                         
     scheduler();            //This function will never return.
 }                       
                         
                         
-void Count_up(int32 * count)
+void Count(void)
 {
-	flag_set();
-   for(;;)
+	for(;;)
 	{
-		LED_Out(*count);
-		if((*count)++ > MAX_COUNT)
-			*count = 0;
+		LED_Out(count);
+		count++;
+		if(count > 0xFF)
+			count = 0;
 	}
 }
                     
-void Count_out(int32 * count)
+void Count_out(void)
 {
-	flag_set();
-	for(;;)
+  for(;;)
 	{
-		printf("%d\n",*count);
+		printf("%d\n",count);
 	}
 }
+ 

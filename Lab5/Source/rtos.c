@@ -570,4 +570,47 @@ void semaphoreObjectInit(semaphoreObject_t *semaphoreObjectPtr,
     listObjectInit(&(semaphoreObjectPtr->waitList));
 }
 
-
+//This function initalizes the Read Write lock
+//makes three mutexes and initializes the count of readers to 0
+void	rwLockObjectInit(readerWriterLockObject_t * lock)
+{
+	mutexObjectInit(&(lock->Access),1);
+	mutexObjectInit(&(lock->Count),1);
+	mutexObjectInit(&(lock->RW),1);
+	lock->reader_count = 0;
+}
+//This function locks the acess to the resource to other readers or writers
+//until the WExit function is called;
+void	rwLockObjectLockWriter(readerWriterLockObject_t * lock)
+{
+	mutexObjectLock(&(lock->Access),-1);
+	mutexObjectLock(&(lock->RW),-1);
+}
+//locks access of writers but not readers
+void	rwLockObjectLockReader(readerWriterLockObject_t * lock)
+{
+	mutexObjectLock(&(lock->Access),-1);
+	mutexObjectLock(&(lock->Count),-1);
+	if(lock->reader_count == 0)
+		mutexObjectLock(&lock->RW,-1);
+	lock->reader_count++;
+	mutexObjectRelease(&(lock->Count));
+	mutexObjectRelease(&(lock->Access));
+}
+//Unlocks the read write resourse for use
+void	rwLockObjectRelease(readerWriterLockObject_t * lock)
+{
+	mutexObjectLock(&(lock->Count),-1);
+	if(&lock->reader_count == 0)
+	{
+		mutexObjectRelease(&(lock->RW));
+		mutexObjectRelease(&(lock->Access));
+	}
+	else
+	{
+		lock->reader_count--;
+		if(lock->reader_count == 0)
+			mutexObjectRelease(&(lock->RW));
+	}
+	mutexObjectRelease(&(lock->Count));
+}
