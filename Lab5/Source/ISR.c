@@ -4,7 +4,7 @@
 #include "Flag/flag.h"
 void irq_interrupt_service_routine(void)
 {
-	flag_set();
+	//flag_set();
 	if( T0IR & 0x01 ) //if Timer0
 	{	
 		T0IR = 1;//reset Int

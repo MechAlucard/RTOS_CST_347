@@ -601,7 +601,7 @@ void	rwLockObjectLockReader(readerWriterLockObject_t * lock)
 void	rwLockObjectRelease(readerWriterLockObject_t * lock)
 {
 	mutexObjectLock(&(lock->Count),-1);
-	if(&lock->reader_count == 0)
+	if(lock->reader_count <= 0)
 	{
 		mutexObjectRelease(&(lock->RW));
 		mutexObjectRelease(&(lock->Access));

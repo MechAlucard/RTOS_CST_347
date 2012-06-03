@@ -457,9 +457,9 @@ start_high_priority_thread
         
         NOP                     ;can not use banked registers after user 
                                 ;mode LDM.
-		STMFD   $R13_irq!, {R0-R3, R12, $R14_irq} ;backup registers
-		BL		flag_clear ;clear dignostic flag before switching to thread	
-		LDMFD $R13_irq!, {R0-R3, R12, PC}^   ;restore registers
+		;STMFD   $R13_irq!, {R0-R3, R12, $R14_irq} ;backup registers
+		;BL		flag_clear ;clear dignostic flag before switching to thread	
+		;LDMFD $R13_irq!, {R0-R3, R12, PC}^   ;restore registers
         MOVS    PC, $R14_irq    ;PC=R14_irq, CPSR=SPSR_irq
                                 ;After this instruction the highest priority
                                 ;ready thread in the system will start running
